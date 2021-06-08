@@ -1,0 +1,75 @@
+{
+  "checkpointable": false,
+  "name": "{{ app.name }}",
+  "executionSystem": "designsafe.community.exec.stampede2.nores",
+  "executionType": "CLI",
+  "deploymentPath": "{{ username }}/apps/{{ app.name }}-{{ app.version }}",
+  "deploymentSystem": "{{ app.deployment_system }}",
+  "helpURI": "",
+  "label": "{{ app.label }}",
+  "shortDescription": "{{ app.description }}",
+  "longDescription": "{{ app.long_description}}",
+  "modules": ["python3"],
+  "ontology": ["pylauncher", "parameteric_jobs"],
+  "parallelism": "PARALLEL",
+  "tags": [],
+  "templatePath": "run.sh",
+  "testPath": "test.sh",
+  "version": "{{ app.version }}",
+  "defaultMaxRunTime": "01:00:00",
+  "inputs": [   {
+    "id": "generator_path",
+    "value": {
+      "visible": true,
+      "required": false,
+      "order": 2
+    },
+    "details": {
+      "label": "Folder containing generator.sh script and supporting files",
+      "description": "Contents are fully copied into the generator directory. Application calls generator.sh entry point script and passes it the job directory and number of processes available for all jobs before every call to pylauncher, until the generator script produces no input file for pylauncher." 
+    },
+    "semantics": {
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "ontology": []
+    }
+  }
+],
+  "parameters": [
+    {
+      "id": "custom_modules",
+      "value": {
+        "visible": true,
+        "required": true,
+        "type": "string",
+        "order": 0,
+        "default": ""
+      },
+      "details": {
+        "label": "Custom Modules",
+        "description": "Custom tacc modules required for jobs to be execued. Will override default."
+      },
+      "semantics": {
+        "minCardinality": 0,
+        "ontology": []
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "id": "log",
+      "value": {
+        "order": 100,
+        "default": "{{ app.name }}.log"
+      },
+      "details": {
+        "label": "STDOUT and STDERR from the command"
+      },
+      "semantics": {
+        "minCardinality": 0,
+        "maxCardinality": 1,
+        "ontology": []
+      }
+    }
+  ]
+}
