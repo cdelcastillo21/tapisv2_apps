@@ -9,7 +9,7 @@
   "label": "{{ app.label }}",
   "shortDescription": "{{ app.description }}",
   "longDescription": "{{ app.long_description}}",
-  "modules": ["python3"],
+  "modules": [],
   "ontology": ["pylauncher", "parameteric_jobs"],
   "parallelism": "PARALLEL",
   "tags": [],
@@ -18,15 +18,15 @@
   "version": "{{ app.version }}",
   "defaultMaxRunTime": "01:00:00",
   "inputs": [   {
-    "id": "generator_path",
+    "id": "job_inputs",
     "value": {
       "visible": true,
       "required": false,
       "order": 2
     },
     "details": {
-      "label": "Folder containing generator.sh script and supporting files",
-      "description": "Contents are fully copied into the generator directory. Application calls generator.sh entry point script and passes it the job directory and number of processes available for all jobs before every call to pylauncher, until the generator script produces no input file for pylauncher." 
+      "label": "Job Inputs",
+      "description": "Folder containing at least a generator.sh script and if needed supporting files for jobs to run. Contents are fully copied into the generator directory. Application calls repeatedly calls generator.sh entry point script and passes it the iteration number and number of processes available for all jobs before every call to pylauncher, until the generator script produces no input file for pylauncher." 
     },
     "semantics": {
       "minCardinality": 0,
@@ -40,7 +40,7 @@
       "id": "custom_modules",
       "value": {
         "visible": true,
-        "required": true,
+        "required": false,
         "type": "string",
         "order": 0,
         "default": ""
@@ -50,7 +50,6 @@
         "description": "Custom tacc modules required for jobs to be execued. Will override default."
       },
       "semantics": {
-        "minCardinality": 0,
         "ontology": []
       }
     }

@@ -1,11 +1,12 @@
 #!/bin/bash
 # 
-# TX FEMA STORM RUNS - Generator script
+# SHELL DEMO  - Generator 
 # Carlos del-Castillo-Negrete - cdelcastillo21@gmail.com
 # June 2021
 #
 # Main entrypoint called by pylauncher application to generate files for pylauncher.
-# Note here we just call the python script generator.py, which does the heavy lifting. 
+# Note nothing is done in this case, since we have a static jobs_list.csv file defined. However
+# (As of now) this file is still required by the application.
 
 DEBUG=true
 
@@ -16,15 +17,14 @@ fi
 ITER=$1
 NP=$2
 
-set -x
 echo "STARTING GENERATOR"
 pwd
 date
 
+# Nothing done here since we already have static jobs_list.csv file.
 ls -lat 
 
-# Generate input file
-python generator.py $ITER $NP 
+echo "GENERATOR DONE"
 
 if [ "$DEBUG" = true ] ; then
   set +x

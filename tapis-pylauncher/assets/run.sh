@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 
-# pylauncher application - main entry-point
-#   Carlos del-Castillo-Negrete
+# Pylauncher Tapis Application - Main entry-point
+#   Carlos del-Castillo-Negrete - cdelcastillo21@gmail.com
 #   June 2021
-set -x
+#
+# Main entrypoint called in execution envrionment by Tapis to start the job. 
+
+DEBUG=true
+
+if [ "$DEBUG" = true ] ; then
+  set -x
+fi
 
 PYLAUNCHER_INPUT="jobs_list.csv"
 
@@ -16,7 +23,10 @@ date
 
 # Copy job_configs to run directory. 
 # Use rsync since there may be a decent bit of data packaged if singularity images included
-rsync -a --info=progress2 ${job_configs} job_configs 
+# Note if job_configs is listed as an input and not a parameter then we don't need to do this step.
+# rsync -a --info=progress2 ${job_configs} job_configs 
+
+ls -lat 
 
 # Make sure generator script exists
 if [ ! -e ./job_configs/generator.sh ]
@@ -61,6 +71,7 @@ do
     mv ${PYLAUNCHER_INPUT} ${PYLAUNCHER_INPUT}_${ITER}
   else
     # No input for pylauncher, done. 
+    echo "No Input for Pylauncher found, exiting"
     break
   fi
 
@@ -70,5 +81,8 @@ done
 date
 echo "DONE"
 
-set +x
+if [ "$DEBUG" = true ] ; then
+  set +x
+fi
+
 exit 0

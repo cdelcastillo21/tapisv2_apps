@@ -1,21 +1,32 @@
 #!/bin/bash
+# 
+# Shell Demo - Pre Process Script
+# Carlos del-Castillo-Negrete - cdelcastillo21@gmail.com
+# June 2021
+#
+# Post-process script for shell demo. Gets passed in job number and creates a run directory
+# for that job. 
+
+DEBUG=true
+
+if [ "$DEBUG" = true ] ; then
+  set -x
+fi
 
 # Read command line inputs
-RUN_NAME=$1
+JOB_NUM=$1
 
-# Load necessary modules
-module load python3 pylauncher netcdf/4.3.3.1 hdf5/1.8.16
-module list
+echo "STARTING POST-PROCESS FOR STORM ${JOB_NUM}"
 pwd
 date
 
-RUN_DIR="runs/run_${RUN_NAME}"
+RUN_DIR="./runs/job_${NUM}"
 
-# Remove Parallel Processing Dirs
-# rmdir -rf $RUN_DIR/PE*
+echo "POST-PROCESS FOR JOB ${JOB_NUM} DONE"
 
-# Create padcirc done timestamp file
-PADCIRC_TS=`date +"%Y-%m-%d-%H:%M:%S"`
-touch "${RUN_DIR}/ts_padcirc_${PADCIRC_TS}"
+if [ "$DEBUG" = true ] ; then
+  set +x
+fi
 
 exit 0
+

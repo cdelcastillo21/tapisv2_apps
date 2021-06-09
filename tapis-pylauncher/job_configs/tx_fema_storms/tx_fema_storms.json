@@ -3,7 +3,7 @@
   "appId": "{{ app.name }}-{{ app.version}}",
   "archive": true,
   "inputs": {
-        "generator_path":  "agave://{{ app.deployment_system }}/{{ username }}/apps/{{ app.name }}-{{ app.version }}/{{ job.name }}"
+        "job_assets":  "agave://{{ app.deployment_system }}/{{ username }}/apps/{{ app.name }}-{{ app.version }}/job_configs/{{ job.name }}"
           },
   "parameters": {"custom_modules": "tacc-singularity netcdf"}
 }

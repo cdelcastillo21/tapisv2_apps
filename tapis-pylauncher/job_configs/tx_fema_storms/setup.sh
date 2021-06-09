@@ -7,6 +7,12 @@
 # Basic set up required before running all job runs.
 # Create run and output directories
 
+DEBUG=true
+
+if [ "$DEBUG" = true ] ; then
+  set -x
+fi
+
 mkdir -p runs                        # active job runs 
 mkdir -p outputs                     # output files for each storm
 mkdir -p storms                      # links to storm wind/press files go here
@@ -36,5 +42,9 @@ ln -s ./job_configs/pre_process.sh .
 ln -s ./job_configs/post_process.sh .
 ln -s ./job_configs/adcprep .
 ln -s ./job_configs/padcirc .
+
+if [ "$DEBUG" = true ] ; then
+  set +x
+fi
 
 exit 0

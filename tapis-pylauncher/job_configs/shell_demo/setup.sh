@@ -1,15 +1,33 @@
 #!/bin/bash
+# 
+# SHELL DEMO  - Setup Script
+# Carlos del-Castillo-Negrete - cdelcastillo21@gmail.com
+# June 2021
+#
+# Basic set up required before running all job runs.
+# Create run and output directories
 
-JOB_DIR=$1
+DEBUG=true
 
-cd $JOB_DIR
+if [ "$DEBUG" = true ] ; then
+  set -x
+fi
 
-# Create scan inputs and outputs directory
-mkdir -p inputs                      # Directory where inputs to scan through are
-mkdir -p outputs                     # Global and specific output files 
-mkdir -p out_data_configs            # Configs to extract datasets 
-mkdir -p runs                        # Active job runs 
+echo "STARTING SETUP"
+pwd
+date
 
-chmod +x *.sh
+mkdir -p runs                        # active job runs 
+mkdir -p outputs                     # output files for each storm
+
+# Make shell scripts executable in job config dir 
+chmod +x main.sh
+
+echo "SETUP DONE"
+date
+
+if [ "$DEBUG" = true ] ; then
+  set +x
+fi
 
 exit 0

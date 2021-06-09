@@ -12,9 +12,16 @@
 #   Move log files to output directory for storm
 #   Delete run directory (DISABLE for now -> default enable later, add debug option to not to)
 
+DEBUG=true
+
+if [ "$DEBUG" = true ] ; then
+  set -x
+fi
+
 # Read command line inputs
 NUM=$1
 
+echo "STARTING POST-PROCESS FOR STORM ${NUM}"
 pwd
 date
 
@@ -41,6 +48,12 @@ ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/maxele.63.nc" "${OUT_DIR}/maxele.6
 # Create adcprep done timestamp file
 STOP_TS=`date +"%Y-%m-%d-%H:%M:%S"`
 touch "${OUT_DIR}/ts_post_stop_${STOP_TS}"
+
+echo "FINISHING POST-PROCESS FOR STORM ${NUM}"
+
+if [ "$DEBUG" = true ] ; then
+  set +x
+fi
 
 exit 0
 

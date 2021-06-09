@@ -1,0 +1,3 @@
+1,pre_process 1;./main.sh 1;post_process 2
+2,pre_process 1;./main.sh 2;post_process 2
+3,pre_process 1;./main.sh 3;post_process 2

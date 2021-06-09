@@ -1,0 +1,9 @@
+{
+  "name": "{{ app.name }}-{{ job.name }}",
+  "appId": "{{ app.name }}-{{ app.version}}",
+  "archive": true,
+  "inputs": {
+        "job_assets":  "agave://{{ app.deployment_system }}/{{ username }}/apps/job_configs/{{ app.name }}/job_configs/{{ job.name }}"
+          },
+  "parameters": {}
+}
