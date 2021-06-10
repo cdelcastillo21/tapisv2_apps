@@ -56,7 +56,12 @@ ITER=1
 while :
 do
   # Call generator script - Note parent director of generator when executing is root job directory
-  ./generator.sh ${ITER} ${NP} 
+  ./generator.sh ${ITER} $SLURM_NPROCS
+  ret=$?
+  if [ $ret -ne 0 ]; then
+    log ERROR "Generator script failed on iteration ${ITER}!"
+    # Fail gracefully here? 
+  fi
 
   # If input file for pylauncher has been generated, then start pylauncher
   if [ -e ${PYLAUNCHER_INPUT} ]

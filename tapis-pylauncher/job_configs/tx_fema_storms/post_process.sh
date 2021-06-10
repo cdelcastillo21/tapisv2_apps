@@ -14,42 +14,50 @@
 
 DEBUG=true
 
+# Read command line inputs
+STORM_NUM=$1
+
+log () {
+  echo "$(date) : ${1} - ${2}" >> "logs/runs/s${STORM_NUM}_post.log"
+}
+
 if [ "$DEBUG" = true ] ; then
   set -x
+  log DEBUG "Setting debug."
 fi
 
-# Read command line inputs
-NUM=$1
+log INFO "Starting post-process for storm ${STORM_NUM}"
 
-echo "STARTING POST-PROCESS FOR STORM ${NUM}"
-pwd
-date
-
-RUN_DIR="./runs/s${NUM}"
+RUN_DIR="runs/s${STORM_NUM}"
 
 # Make output DIR
-OUT_DIR="./output/s${NUM}"
+OUT_DIR="output/runs/s${NUM}"
 mkdir $OUT_DIR
 
 # Create start timestamp file
 START_TS=`date +"%Y-%m-%d-%H:%M:%S"`
 touch "${RUN_DIR}/ts_post_start_${START_TS}"
 
+log INFO "Cleaning output .nc files."
+
 # Clean netcdf adcirc files - Put clean versions in output dir
 ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/fort.61.nc" "${OUT_DIR}/fort.61.nc"
 ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/fort.63.nc" "${OUT_DIR}/fort.63.nc"
 ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/maxele.63.nc" "${OUT_DIR}/maxele.63.nc"
 
-# Move log files 
+# Make logs directory for this specific storm run
+mkdir logs/runs/s${STORM_NUM}
 
-# Remove Parallel Processing Dirs
+# Move log files in run directory to log folder for storm
+mv "${RUN_DIR}/*.log" "logs/runs/s${STORM_NUM}/"
+
+# Remove Parallel run directory 
 # rmdir -rf $RUN_DIR
 
-# Create adcprep done timestamp file
-STOP_TS=`date +"%Y-%m-%d-%H:%M:%S"`
-touch "${OUT_DIR}/ts_post_stop_${STOP_TS}"
+log INFO "Finishing post-process for storm ${STORM_NUM}"
 
-echo "FINISHING POST-PROCESS FOR STORM ${NUM}"
+# Move logs into storm specific folder 
+mv "logs/runs/s${STORM_NUM}_*.log" "logs/runs/s${STORM_NUM}/"
 
 if [ "$DEBUG" = true ] ; then
   set +x

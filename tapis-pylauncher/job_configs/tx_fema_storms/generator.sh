@@ -16,15 +16,14 @@ fi
 ITER=$1
 NP=$2
 
-set -x
 echo "STARTING GENERATOR"
 pwd
 date
 
 ls -lat 
 
-# Generate input file
-python generator.py $ITER $NP 
+# Generate input file via python script 
+python3 generator.py $ITER $NP 
 
 if [ "$DEBUG" = true ] ; then
   set +x

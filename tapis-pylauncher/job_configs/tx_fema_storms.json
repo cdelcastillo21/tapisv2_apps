@@ -1,9 +1,13 @@
 {
   "name": "{{ app.name }}-{{ job.name }}",
   "appId": "{{ app.name }}-{{ app.version}}",
+  "nodeCount": 1,
+  "processorsPerNode": 12,
+  "memoryPerNode": "2",
+  "maxRunTime": "00:15:00",
   "archive": true,
   "inputs": {
-        "job_assets":  "agave://{{ app.deployment_system }}/{{ username }}/apps/{{ app.name }}-{{ app.version }}/job_configs/{{ job.name }}"
+        "job_inputs":  "agave://{{ app.deployment_system }}/{{ username }}/apps/job_configs/{{ app.name }}/{{ job.name }}.zip"
           },
-  "parameters": {"custom_modules": "tacc-singularity netcdf"}
+  "parameters": {"custom_modules": "python3"}
 }

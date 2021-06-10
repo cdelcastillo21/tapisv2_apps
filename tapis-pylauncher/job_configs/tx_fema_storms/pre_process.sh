@@ -11,47 +11,47 @@
 
 DEBUG=true
 
+# Read command line inputs
+STORM_NUM=$1
+ADCIRC_RUN_PROC=$2
+
+log () {
+  echo "$(date) : ${1} - ${2}" >> "logs/runs/s${STORM_NUM}_pre.log"
+}
+
 if [ "$DEBUG" = true ] ; then
+  log DEBUG "Setting debug."
   set -x
 fi
 
-# Read command line inputs
-NUM=$1
-ADCIRC_RUN_PROC=$2
-
-echo "STARTING PRE-PROCESS FOR STORM ${NUM}"
-pwd
-date
+log INFO "Starting pre-process for storm ${STORM_NUM}"
 
 # Create Run Dir - Copy Base Inputs TODO: Check preservation of sym links?
-RUN_DIR="./runs/s${NUM}"
+RUN_DIR="runs/s${NUM}"
 cp -r --preserve=links ./mesh $RUN_DIR
 
 # Copy wind and pressure files for strom to run directory 
-cp --preserve=links "./storms/TEX_FEMA_RUN${NUM}.pre $RUN_DIR/fort.221"
-cp --preserve=links "./storms/TEX_FEMA_RUN${NUM}.WND $RUN_DIR/fort.222"
+cp --preserve=links "storms/TEX_FEMA_RUN$STORM_NUM.pre $RUN_DIR/fort.221"
+cp --preserve=links "storms/TEX_FEMA_RUN$STORM_NUM.WND $RUN_DIR/fort.222"
 
 cd $RUN_DIR
 
 # Copy adcprep executables to run directory 
-cp --preserve=links ../../adcprep . 
-
-# Create start timestamp file
-START_TS=`date +"%Y-%m-%d-%H:%M:%S"`
-touch "./ts_adcprep_start_${START_TS}"
+ln -s ../../adcprep . 
 
 # Run ADCPREP
-printf '%s\n1\nfort.14\n' "$ADCIRC_RUN_PROC" | adcprep > prep.log
-printf '%s\n2\n' "$ADCIRC_RUN_PROC" | adcprep >> prep.log
+log INFO "Starting ADCPREP first execution."
+printf '%s\n1\nfort.14\n' "$ADCIRC_RUN_PROC" | adcprep >>  "logs/runs/s${STORM_NUM}_pre.log"
+log INFO "ADCPREP first execution done."
 
-# Create adcprep done timestamp file
-ADCPREP_TS=`date +"%Y-%m-%d-%H:%M:%S"`
-touch "./ts_adcprep_end_${ADCPREP_TS}"
+log INFO "Starting ADCPREP second execution."
+printf '%s\n2\n' "$ADCIRC_RUN_PROC" | adcprep >>  "logs/runs/s${STORM_NUM}_pre.log"
+log INFO "ADCPREP second execution done."
 
-echo "FINISHED PRE-PROCESS FOR STORM ${NUM}"
-date
+log INFO "Finished pre-process for storm ${STORM_NUM}"
 
 if [ "$DEBUG" = true ] ; then
+  log DEBUG "Unsetting debug."
   set +x
 fi
 

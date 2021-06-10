@@ -1,8 +1,8 @@
 {
   "checkpointable": false,
   "name": "{{ app.name }}",
-  "executionSystem": "designsafe.community.exec.stampede2.nores",
-  "executionType": "CLI",
+  "executionSystem": "{{ app.exec_system }}",
+  "executionType": "HPC",
   "deploymentPath": "{{ username }}/apps/{{ app.name }}-{{ app.version }}",
   "deploymentSystem": "{{ app.deployment_system }}",
   "helpURI": "",
@@ -20,8 +20,8 @@
   "defaultProcessorsPerNode": 10,
   "defaultMemoryPerNode": 4,
   "defaultNodeCount": 1,
-  "defaultMaxRunTime": "10:00:00",
-  "defaultQueue": "normal",
+  "defaultMaxRunTime": "02:00:00",
+  "defaultQueue": "{{ app.queue }}",
   "inputs": [   {
     "id": "job_inputs",
     "value": {
