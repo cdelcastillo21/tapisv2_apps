@@ -1,0 +1,13 @@
+{
+  "name": "{{ app.name }}-{{ job.name }}",
+  "appId": "{{ app.name }}-{{ app.version}}",
+  "nodeCount": 1,
+  "processorsPerNode": 10,
+  "memoryPerNode": "1",
+  "maxRunTime": "00:05:00",
+  "archive": false,
+  "inputs": {
+        "job_inputs":  "agave://{{ app.deployment_system }}/{{ username }}/apps/job_configs/{{ app.name }}/{{ job.name }}.zip"
+          },
+  "parameters": {}
+}
