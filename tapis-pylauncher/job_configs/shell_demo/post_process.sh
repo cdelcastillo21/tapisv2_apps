@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-# Shell Demo - Pre Process Script
+# Shell Demo - Post Process Script
 # Carlos del-Castillo-Negrete - cdelcastillo21@gmail.com
 # June 2021
 #
@@ -9,22 +9,30 @@
 
 DEBUG=true
 
-if [ "$DEBUG" = true ] ; then
-  set -x
-fi
-
 # Read command line inputs
 JOB_NUM=$1
 
-echo "STARTING POST-PROCESS FOR STORM ${JOB_NUM}"
-pwd
-date
-
-RUN_DIR="./runs/job_${NUM}"
-
-echo "POST-PROCESS FOR JOB ${JOB_NUM} DONE"
+log () {
+  echo "$(date) : ${1} - ${2}" >> "logs/jobs/job_${JOB_NUM}.log"
+}
 
 if [ "$DEBUG" = true ] ; then
+  set -x
+  log DEBUG "Setting debug."
+fi
+
+log INFO "Post process started for job ${JOB_NUM}"
+
+RUN_DIR="runs/job_${JOB_NUM}"
+
+mv "${RUN_DIR}/output.txt" "outputs/job_${JOB_NUM}.txt"
+
+# rm -rf $RUN_DIR
+
+log INFO "Post process done for ${JOB_NUM}"
+
+if [ "$DEBUG" = true ] ; then
+  log DEBUG "Unsetting debug."
   set +x
 fi
 

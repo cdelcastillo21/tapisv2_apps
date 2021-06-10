@@ -17,11 +17,13 @@ echo "STARTING SETUP"
 pwd
 date
 
-mkdir -p runs                        # active job runs 
-mkdir -p outputs                     # output files for each storm
+# Create directories for clarity 
+mkdir runs                        # active job runs 
+mkdir -p logs/jobs                   # log files for each job
+mkdir outputs                     # output files for each job
 
-# Make shell scripts executable in job config dir 
-chmod +x main.sh
+# Make shell scripts executable 
+chmod +x main.sh post_process.sh pre_process.sh
 
 echo "SETUP DONE"
 date

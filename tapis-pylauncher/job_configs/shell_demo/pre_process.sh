@@ -9,25 +9,28 @@
 
 DEBUG=true
 
-if [ "$DEBUG" = true ] ; then
-  set -x
-fi
-
 # Read command line inputs
 JOB_NUM=$1
 
-echo "STARTING PRE-PROCESS JOB_NUM ${JOB_NUM}"
-pwd
-date
-
-# Create Run Dir - Copy Base Inputs TODO: Check preservation of sym links?
-RUN_DIR="./runs/job_${JOB_NUM}"
-mkdir $RUN_DIR
-
-echo "PRE-PROCESS JOB_NUM ${JOB_NUM} DONE"
-date
+log () {
+  echo "$(date) : ${1} - ${2}" >> "logs/jobs/job_${JOB_NUM}.log"
+}
 
 if [ "$DEBUG" = true ] ; then
+  log DEBUG "Setting debug."
+  set -x
+fi
+
+log INFO "Starting pre-processing for job ${JOB_NUM}"
+
+# Create direcotry for job in runs directory
+RUN_DIR="runs/job_${JOB_NUM}"
+mkdir $RUN_DIR
+
+log INFO "Pre-processing for job ${JOB_NUM} done."
+
+if [ "$DEBUG" = true ] ; then
+  log DEBUG "Unsetting debug."
   set +x
 fi
 

@@ -17,18 +17,24 @@
   "testPath": "test.sh",
   "version": "{{ app.version }}",
   "defaultMaxRunTime": "01:00:00",
+  "defaultProcessorsPerNode": 10,
+  "defaultMemoryPerNode": 4,
+  "defaultNodeCount": 1,
+  "defaultMaxRunTime": "10:00:00",
+  "defaultQueue": "normal",
   "inputs": [   {
     "id": "job_inputs",
     "value": {
       "visible": true,
       "required": false,
-      "order": 2
+      "order": 1
     },
     "details": {
       "label": "Job Inputs",
-      "description": "Folder containing at least a generator.sh script and if needed supporting files for jobs to run. Contents are fully copied into the generator directory. Application calls repeatedly calls generator.sh entry point script and passes it the iteration number and number of processes available for all jobs before every call to pylauncher, until the generator script produces no input file for pylauncher." 
+      "description": "Zipped folder containing at least a generator.sh script and if needed supporting files for jobs to run. Contents are fully copied into the generator directory. Application calls repeatedly calls generator.sh entry point script and passes it the iteration number and number of processes available for all jobs before every call to pylauncher, until the generator script produces no input file for pylauncher." 
     },
     "semantics": {
+      "fileTypes": ["raw-0"],
       "minCardinality": 0,
       "maxCardinality": 1,
       "ontology": []
@@ -56,13 +62,28 @@
   ],
   "outputs": [
     {
-      "id": "log",
+      "id": "logs",
       "value": {
         "order": 100,
-        "default": "{{ app.name }}.log"
+        "default": "outputs.zip"
       },
       "details": {
-        "label": "STDOUT and STDERR from the command"
+        "label": "Compressed folder containing all output files."
+      },
+      "semantics": {
+        "minCardinality": 0,
+        "maxCardinality": 1,
+        "ontology": []
+      }
+    },
+    {
+      "id": "outputs",
+      "value": {
+        "order": 200,
+        "default": "logs.zip"
+      },
+      "details": {
+        "label": "Compressed folder containing all log files."
       },
       "semantics": {
         "minCardinality": 0,

@@ -8,8 +8,13 @@
 
 DEBUG=true
 
+log () {
+  echo "$(date) : ${1} - ${2}" >> "run.log"
+}
+
 if [ "$DEBUG" = true ] ; then
   set -x
+  log DEBUG "Setting debug"
 fi
 
 PYLAUNCHER_INPUT="jobs_list.csv"
@@ -17,71 +22,72 @@ PYLAUNCHER_INPUT="jobs_list.csv"
 # Load necessary modules - These are the modules required for all executed jobs.
 module load ${custom_modules}
 module list
-pwd
-echo "STARTING"
-date
+log INFO "Staring Pylauncher Application"
 
-# Copy job_configs to run directory. 
-# Use rsync since there may be a decent bit of data packaged if singularity images included
-# Note if job_configs is listed as an input and not a parameter then we don't need to do this step.
-# rsync -a --info=progress2 ${job_configs} job_configs 
-
-ls -lat 
+# Unzip job inptus directory into job directory
+unzip ${job_inputs} 
 
 # Make sure generator script exists
-if [ ! -e ./job_configs/generator.sh ]
+if [ ! -e generator.sh ]
 then
   # Exit if no generator script found
-  echo "ERROR - Required generator script (generator.sh) not found in job_configs folder."
+  log ERROR "Required generator script (generator.sh) not found in job input folder."
   set +x
   exit 1
 fi
 
 # Change permissions of generator script so it can be executed
-chmod +x ./job_configs/generator.sh
+chmod +x generator.sh
 
 # If set-up script exists, run it first 
-if [ -e ./job_configs/setup.sh ]
+if [ -e setup.sh ]
 then
   # Make set-up script executable and run
-  chmod +x ./job_configs/setup.sh
-  echo "Running setup script"
-  ./job_configs/setup.sh 
+  chmod +x setup.sh
+  log INFO "Running setup script"
+  ./setup.sh 
 fi
 
 # Main Execution Loop:
-#   - Call generator script. Biggest concern here is set-up for generator script run environment. 
+#   - Call generator script. 
 #   - Calls pylauncher on generated input file. Expected name = jobs_list.csv 
-#   - REPEAT until generator script returns no input file for pylauncher. 
+#   - Repeats until generator script returns no input file for pylauncher. 
 ITER=1
 while :
 do
   # Call generator script - Note parent director of generator when executing is root job directory
-  ./job_configs/generator.sh ${ITER} ${NP} ${generator_args}
+  ./generator.sh ${ITER} ${NP} 
 
   # If input file for pylauncher has been generated, then start pylauncher
-  if [ -e ./${PYLAUNCHER_INPUT} ]
+  if [ -e ${PYLAUNCHER_INPUT} ]
   then
     # Launch pylauncher on generated input file 
-    echo "Starting Pylauncher"
+    log INFO "Starting pylauncher for iteration ${ITER}"
     python launch.py
+    log INFO "Pylauncher done for iteration ${ITER}"
 
     # Save pylauncher input file used.
-    echo "Archiving pylauncher input ilfe"
+    log INFO "Archiving ${ITER} pylauncher input file"
     mv ${PYLAUNCHER_INPUT} ${PYLAUNCHER_INPUT}_${ITER}
   else
     # No input for pylauncher, done. 
-    echo "No Input for Pylauncher found, exiting"
+    log INFO "No Input for Pylauncher found on iter ${ITER}, exiting"
     break
   fi
 
   ITER=$(( $ITER + 1 ))
 done 
 
-date
-echo "DONE"
+log INFO "Done with execution of pylauncher applicaiton."
+
+log INFO "Compressing logs and outputs folder"
+
+mv run.log logs/run.log
+cd outputs; zip -r ../outputs.zip *; cd ..
+cd logs; zip -r ../logs.zip *; cd ..
 
 if [ "$DEBUG" = true ] ; then
+  log DEBUG "Unsetting debug"
   set +x
 fi
 
