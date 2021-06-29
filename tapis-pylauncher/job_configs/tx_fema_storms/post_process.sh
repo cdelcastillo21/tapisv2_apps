@@ -31,8 +31,8 @@ log INFO "Starting post-process for storm ${STORM_NUM}"
 RUN_DIR="runs/s${STORM_NUM}"
 
 # Make output DIR
-OUT_DIR="output/runs/s${NUM}"
-mkdir $OUT_DIR
+OUT_DIR="outputs/runs/s${STORM_NUM}"
+mkdir -p $OUT_DIR
 
 # Create start timestamp file
 START_TS=`date +"%Y-%m-%d-%H:%M:%S"`
@@ -46,10 +46,11 @@ ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/fort.63.nc" "${OUT_DIR}/fort.63.nc
 ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/maxele.63.nc" "${OUT_DIR}/maxele.63.nc"
 
 # Make logs directory for this specific storm run
-mkdir logs/runs/s${STORM_NUM}
+RUN_LOG_DIR=logs/runs/s${STORM_NUM}
+mkdir $RUN_LOG_DIR
 
 # Move log files in run directory to log folder for storm
-mv "${RUN_DIR}/*.log" "logs/runs/s${STORM_NUM}/"
+mv $RUN_DIR/*.log $RUN_LOG_DIR
 
 # Remove Parallel run directory 
 # rmdir -rf $RUN_DIR
@@ -57,7 +58,7 @@ mv "${RUN_DIR}/*.log" "logs/runs/s${STORM_NUM}/"
 log INFO "Finishing post-process for storm ${STORM_NUM}"
 
 # Move logs into storm specific folder 
-mv "logs/runs/s${STORM_NUM}_*.log" "logs/runs/s${STORM_NUM}/"
+mv logs/runs/s${STORM_NUM}_*.log $RUN_LOG_DIR
 
 if [ "$DEBUG" = true ] ; then
   set +x
