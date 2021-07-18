@@ -1,6 +1,7 @@
 import copy
 import socket
 import glob
+import json
 import math
 import os
 import random
@@ -972,17 +973,18 @@ class Commandline:
 
     * command : a unix commandline
     * cores : an integer core count
+
+    It optionally contains the following parameters:
     * pre_process: a unix pre-process command, to be run before command
     * post_process: a unix post-process command, to be run after command
+    * id: a user-supplied task identifier
     """
-    def __init__(self, command, **kwargs):
-        self.data = {'command' : command}
-        self.data["cores"] = int(kwargs.pop("cores",1))
-        self.data["pre_process"] = kwargs.pop("pre_process", None)
-        self.data["post_process"] = kwargs.pop("post_process", None)
+
+    def __init__(self, command, cores=1, **kwargs):
+        self.data = {'command' : command, "cores": int(cores), **kwargs}
 
     def __getitem__(self, ind):
-        return self.data[ind]
+        return self.data.get(ind)
 
     def __str__(self):
         r = "command=<<%s>>, cores=%d, pre_process=<<%s>>, post_process=<<%s>>" \
@@ -1085,9 +1087,18 @@ class FileCommandlineGenerator(CommandlineGenerator):
     :param cores: (keyword, default 1) core count to be used for all commands
     :param pre_post_process: (keyword, default False) are pre-process and post-process commands per line?
     """
-    def __init__(self,filename,**kwargs):
-        cores = kwargs.pop("cores", 1)
-        pre_post_process = kwargs.pop("pre_post_process", False)
+    def __init__(self, filename, cores=1, pre_post_process=False, **kwargs):
+        if filename.endswith(".json"):
+            commandlist = self._init_from_json(filename, cores=cores)
+        else:
+            commandlist = self._init_from_csv(filename, cores=cores, pre_post_process=pre_post_process)
+
+        CommandlineGenerator.__init__(self, list=commandlist, **kwargs)
+
+    def _init_from_csv(self, filename, cores=1, pre_post_process=False):
+        """Parse a list of commands from a .txt/.csv file, line by line.
+        """
+
         file = open(filename)
         commandlist = []
         count = 0
@@ -1117,8 +1128,29 @@ class FileCommandlineGenerator(CommandlineGenerator):
                 c = cores
             commandlist.append(Commandline(l, cores=c, pre_process=pre, post_process=post))
             count += 1
-        CommandlineGenerator.__init__(self, list=commandlist, **kwargs)
 
+        return commandlist
+
+    def _init_from_json(self, filename, cores=1):
+        """Parse a list of commands from a JSON file
+
+        This allows for much greater flexibility in passing arguments.
+        """
+
+        with open(filename, "r") as fp:
+            task_list = json.load(fp)
+
+        commandlist = []
+        for i, t in enumerate(task_list):
+            if "main" not in t:
+                raise LauncherException(f"Task {t} has no 'main' command specified!")
+            task_cores = t.pop("cores", cores)
+            task_id = t.pop("id", i)
+            # Pass any extra task parameters directly to the Commandline object
+            commandlist.append(
+                Commandline(t["main"], cores=task_cores, id=task_id, **t)
+            )
+        return commandlist
 
 class TaskGenerator:
     """iterator class that can yield the following:

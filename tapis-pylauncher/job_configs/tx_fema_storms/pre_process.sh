@@ -41,13 +41,13 @@ cd $RUN_DIR
 [ -f adcprep ] || ln -s ../../adcprep .
 
 # Run ADCPREP
-log INFO "Starting ADCPREP first execution."
+log INFO "Starting ADCPREP first execution for $STORM_NUM."
 printf '%s\n1\nfort.14\n' "$ADCIRC_RUN_PROC" | ./adcprep >> $LOG_FILE
-log INFO "ADCPREP first execution done."
+log INFO "ADCPREP first execution done for $STORM_NUM."
 
 log INFO "Starting ADCPREP second execution."
 printf '%s\n2\n' "$ADCIRC_RUN_PROC" | ./adcprep >> $LOG_FILE
-log INFO "ADCPREP second execution done."
+log INFO "ADCPREP second execution done for $STORM_NUM."
 
 log INFO "Finished pre-process for storm ${STORM_NUM}"
 

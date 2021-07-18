@@ -6,28 +6,31 @@ June 2021
 
 Note this file controls which storms are scanned through
 """
+
 import argparse
-
-# Parameters for run (full run settings in comments)
-STORMS = [1, 2, 3] # list(range(1,572))
-NP_PER_JOB = 4     # 50
-
+# It turns out that some storm numbers are missing in the FEMA data. For example, there is a storm 501, but not 500.
+# There are actually only ~450 storms with data, even though the highest number is 572
+from storm_numbers import storm_nums
+import json
 
 # Generate storms list
-def generate_storm_jobs_list(np):
+def generate_storm_jobs_list(np_per_job, storms):
     jobs = []
-    for s in STORMS:
+    for s in storms:
         # Pre and post processing commands -> Serial execution
-        # Note passing one less than total processes per job since one will be for writing data
-        adcirc_run_proc = NP_PER_JOB-1
+        # This comes out to one writer process for every two nodes (assuming SKX nodes with 48 cores each)
+        n_writers = max(1, np_per_job//96)
+        # Note passing n_writers less than total processes per job since some will be for writing data
+        adcirc_run_proc = np_per_job-n_writers
         pre = f'./pre_process.sh {s:03} {adcirc_run_proc}'
         post = f'./post_process.sh {s:03}'
 
         # Main command is the one that will be called using ibrun to launch parallel job
-        main = f'./padcirc -I runs/s{s:03} -O runs/s{s:03} -W 1 > runs/s{s:03}/s{s:03}_adcirc.log'
+        main = f'./padcirc -I runs/s{s:03} -O runs/s{s:03} -W {n_writers} > runs/s{s:03}/s{s:03}_adcirc.log'
 
-        # Create dictionary of jobs to execute
-        jobs.append({'np':NP_PER_JOB, 'pre':pre, 'main':main, 'post':post})
+        # Create list of jobs to execute
+        storm_id = f"{s:03}"
+        jobs.append({'cores':np_per_job, 'pre_process':pre, 'main':main, 'post_process':post, "id": storm_id})
 
     return jobs
 
@@ -38,6 +41,7 @@ def generate_storm_jobs_list(np):
 #    main
 #    post
 # Generate input file in current directory
+"""
 def generate_pylauncher_input(jobs, refresh_int=600):
 
     # Create parallel lines file. Each line has format:
@@ -48,7 +52,7 @@ def generate_pylauncher_input(jobs, refresh_int=600):
         for i in range(len(jobs)):
             fp.write(pl_line.format(np=jobs[i]['np'], pre=jobs[i]['pre'],
                 main=jobs[i]['main'], post=jobs[i]['post']))
-
+"""
 
 if __name__ == "__main__":
     # Parse inputs
@@ -57,13 +61,20 @@ if __name__ == "__main__":
                         help="Iteration of pylauncher execution loop.")
     parser.add_argument('np', type=int, default=1,
                         help="Total number of processes available.")
+    parser.add_argument("--np-per-job", default=48*10, type=int)
+    parser.add_argument("--storm-inds", default=None, type=str)
     args = parser.parse_args()
 
     # Get jobs list to execute
     # No retry logic implemented yet, so only execute if on first iteration of pylauncher
     # In future add logic to find failed jobs and retry them if iter>1.
+    if args.storm_inds is not None:
+        storms = [storm_nums[int(i)] for i in args.storm_inds.split(",")]
+    else:
+        storms = storm_nums[-4:] # STORMS = storm_nums
+    
     if args.iter==1:
-        jobs = generate_storm_jobs_list(args.np)
+        jobs = generate_storm_jobs_list(args.np_per_job, storms)
+        with open("jobs_list.json", "w") as fp:
+            json.dump(jobs, fp)
 
-        # Generate pylauncher input file
-        generate_pylauncher_input(jobs)

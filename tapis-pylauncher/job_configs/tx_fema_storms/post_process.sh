@@ -41,9 +41,11 @@ touch "${RUN_DIR}/ts_post_start_${START_TS}"
 log INFO "Cleaning output .nc files."
 
 # Clean netcdf adcirc files - Put clean versions in output dir
-ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/fort.61.nc" "${OUT_DIR}/fort.61.nc"
-ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/fort.63.nc" "${OUT_DIR}/fort.63.nc"
-ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/maxele.63.nc" "${OUT_DIR}/maxele.63.nc"
+for outfile in $RUN_DIR/*.nc;
+do
+    outfile=$(basename $outfile)
+    ncks -O -x -v neta,nbdv,nvel,nbvv "${RUN_DIR}/$outfile" "${OUT_DIR}/$outfile"
+done
 
 # Make logs directory for this specific storm run
 RUN_LOG_DIR=logs/runs/s${STORM_NUM}
