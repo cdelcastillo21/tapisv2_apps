@@ -23,7 +23,8 @@ date
 ls -lat 
 
 # Generate input file via python script 
-python3 generator.py $ITER $NP 
+# Pass along any extra arguments passed to us
+python3 generator.py $ITER $NP ${@:3}
 
 if [ "$DEBUG" = true ] ; then
   set +x

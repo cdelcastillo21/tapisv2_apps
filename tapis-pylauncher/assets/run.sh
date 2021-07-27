@@ -17,7 +17,11 @@ if [ "$DEBUG" = true ] ; then
   log DEBUG "Setting debug"
 fi
 
-PYLAUNCHER_INPUT="jobs_list.csv"
+# by default expect a csv file, but allow for custom (i.e. json files)
+PYLAUNCHER_INPUT=${pylauncher_input:-"jobs_list.csv"}
+# initialize extra args
+: ${generator_args:=""}
+: ${compress_outputs:=true}
 
 # Load necessary modules - These are the modules required for all executed jobs.
 module load ${custom_modules}
@@ -56,7 +60,7 @@ ITER=1
 while :
 do
   # Call generator script - Note parent director of generator when executing is root job directory
-  ./generator.sh ${ITER} $SLURM_NPROCS
+  ./generator.sh ${ITER} $SLURM_NPROCS $generator_args
   ret=$?
   if [ $ret -ne 0 ]; then
     log ERROR "Generator script failed on iteration ${ITER}!"
@@ -68,7 +72,7 @@ do
   then
     # Launch pylauncher on generated input file 
     log INFO "Starting pylauncher for iteration ${ITER}"
-    python launch.py
+    python3 launch.py $PYLAUNCHER_INPUT
     log INFO "Pylauncher done for iteration ${ITER}"
 
     # Save pylauncher input file used.
@@ -85,11 +89,12 @@ done
 
 log INFO "Done with execution of pylauncher applicaiton."
 
-log INFO "Compressing logs and outputs folder"
-
-mv run.log logs/run.log
-cd outputs; zip -r ../outputs.zip *; cd ..
-cd logs; zip -r ../logs.zip *; cd ..
+if [ "$compress_outputs" = true ]; then
+  log INFO "Compressing logs and outputs folder"
+  mv run.log logs/run.log
+  cd outputs; zip -r ../outputs.zip *; cd ..
+  cd logs; zip -r ../logs.zip *; cd ..
+fi
 
 if [ "$DEBUG" = true ] ; then
   log DEBUG "Unsetting debug"

@@ -21,8 +21,7 @@ echo "STARTING GENERATOR"
 pwd
 date
 
-# Nothing done here since we already have static jobs_list.csv file.
-ls -lat 
+python3 generator.py $ITER $NP ${@:3}
 
 echo "GENERATOR DONE"
 
